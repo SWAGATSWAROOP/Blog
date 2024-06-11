@@ -1,12 +1,12 @@
 import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, RTE, Select } from "..";
-import appwriteService from "../../appwrite/config";
+import appwriteService from "../../appwrite/config.js";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 export default function PostForm({ post }) {
-  const { register, handleSubmit, watch, setValue, control, getValues } =
+  const { register, handleSubmit, watch, setValue, control, getValues, reset } =
     useForm({
       defaultValues: {
         title: post?.title || "",
@@ -21,7 +21,9 @@ export default function PostForm({ post }) {
 
   const submit = async (data) => {
     if (post) {
-      const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null;
+      const file = data.image[0]
+        ? await appwriteService.uploadFile(data.image[0])
+        : null;
 
       if (file) {
         appwriteService.deleteFile(post.featuredImage);
@@ -37,7 +39,7 @@ export default function PostForm({ post }) {
       }
     } else {
       const file = await appwriteService.uploadFile(data.image[0]);
-
+      console.log(file);
       if (file) {
         const fileId = file.$id;
         data.featuredImage = fileId;
@@ -51,6 +53,7 @@ export default function PostForm({ post }) {
         }
       }
     }
+    reset();
   };
 
   const slugTransform = useCallback((value) => {
@@ -75,7 +78,7 @@ export default function PostForm({ post }) {
   }, [watch, slugTransform, setValue]);
 
   return (
-    <form onSubmit={() => handleSubmit(submit)} className="flex flex-wrap">
+    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
       <div className="w-2/3 px-2">
         <Input
           label="Title :"
